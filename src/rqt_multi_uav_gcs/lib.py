@@ -32,12 +32,14 @@ class BoundedLineEdit(QtWidgets.QLineEdit):
 class StyledGroupBox(QtWidgets.QGroupBox):
     def __init__(self, title):
         super().__init__(title)
-        self.setStyleSheet("""QGroupBox
+        self.setStyleSheet(
+            """QGroupBox
 {
     font-size: 25px;
     font-weight: bold;
 }
-""")
+"""
+        )
 
 
 class StatusLabel(QtWidgets.QLabel):
@@ -54,11 +56,14 @@ class StatusLabel(QtWidgets.QLabel):
             self.set_color(init_color)
 
     def set_color(self, color):
-        self.setStyleSheet("""
+        self.setStyleSheet(
+            """
 QLabel {
     color: %s;
     border : 1px solid %s;
-}""" % (color, color))
+}"""
+            % (color, color)
+        )
 
 
 class ArrayDisplayGroupBox(QtWidgets.QGroupBox):
@@ -67,12 +72,14 @@ class ArrayDisplayGroupBox(QtWidgets.QGroupBox):
 
     def __init__(self, title, elements, digits=4, width=0, height=0):
         super().__init__(title)
-        self.setStyleSheet("""QGroupBox
+        self.setStyleSheet(
+            """QGroupBox
 {
     font-size: 20px;
     font-weight: bold;
 }
-""")
+"""
+        )
         layout = QtWidgets.QGridLayout()
 
         self._lcd_numbers = []
@@ -90,12 +97,14 @@ class ArrayDisplayGroupBox(QtWidgets.QGroupBox):
             if width:
                 lcd_number.setMinimumWidth(width)
             lcd_number.setSegmentStyle(QtWidgets.QLCDNumber.Flat)
-            lcd_number.setStyleSheet("""
+            lcd_number.setStyleSheet(
+                """
 QLCDNumber {
     color: #33FF00;
     background-color: #171A1B;
 }
-""")
+"""
+            )
             layout.addWidget(lcd_number, self.DISPLAY_ROW, idx)
             self._lcd_numbers.append(lcd_number)
         self._array_values = []

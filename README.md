@@ -14,7 +14,7 @@ Follow instructions on that repository to install it into your ROS workspace.
 Clone this repository into your ROS workspace, then run
 
 ```
-catkin build rqt_multi_uav_gcs
+catkin build rqt_uav_gcs_traj
 ```
 
 ## Running
@@ -22,7 +22,7 @@ catkin build rqt_multi_uav_gcs
 Simply run
 
 ```
-rosrun rqt_multi_uav_gcs rqt_multi_uav_gcs
+rosrun rqt_uav_gcs_traj rqt_uav_gcs_traj
 ```
 
 and the window in the foregoing image will be displayed

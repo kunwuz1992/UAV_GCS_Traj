@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>rqt_multi_uav_gcs</name>
+  <name>rqt_uav_gcs_traj</name>
   <version>0.3.0</version>
-  <description>Multi UAV GCS</description>
+  <description>UAV Trajecotry Tracking GCS</description>
   <maintainer email="hellston20a@gmail.com">Hs293Go</maintainer>
 
   <license>MIT</license>

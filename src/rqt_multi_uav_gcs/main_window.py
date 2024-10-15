@@ -35,40 +35,42 @@ class MainWindow(QtWidgets.QWidget):
         layout.addItem(spacer, 0, 3)
 
         self._tabs = QtWidgets.QTabWidget()
-        self._tabs.setStyleSheet("""QTabWidget {
+        self._tabs.setStyleSheet(
+            """QTabWidget {
     font-size: 20px;
-}""")
+}"""
+        )
         self._tabs.setTabsClosable(True)
         self._tabs.tabCloseRequested.connect(self.remove_tab)
         self._pages = []
         self._trajectory_progress_all = {}
-        team_mgmt_group_box = self.make_team_mgmt_box()
+        # team_mgmt_group_box = self.make_team_mgmt_box()
 
         self._node = qnode.QNode()
         for tab_title, tab_receiver in self._node.vehicles.items():
             self.make_tab(tab_title, tab_receiver)
         layout.addWidget(self._tabs, 1, 0, 1, 4)
-        layout.addWidget(team_mgmt_group_box)
+        # layout.addWidget(team_mgmt_group_box)
 
         self.setLayout(layout)
 
-    def make_team_mgmt_box(self):
-        team_mgmt_group_box = QtWidgets.QGroupBox("Team Management")
-        layout = QtWidgets.QGridLayout()
-        self.toggle_all_trajectory_button = QtWidgets.QPushButton(
-            "Start Trajectory for all"
-        )
+    # def make_team_mgmt_box(self):
+    #     team_mgmt_group_box = QtWidgets.QGroupBox("Team Management")
+    #     layout = QtWidgets.QGridLayout()
+    #     self.toggle_all_trajectory_button = QtWidgets.QPushButton(
+    #         "Start Trajectory for all"
+    #     )
 
-        def _toggle_all_trajectory(_):
-            for it in self._pages:
-                it.toggle_trajectory_exec.emit(
-                    self.toggle_all_trajectory_button.text().startswith("Start")
-                )
+    #     def _toggle_all_trajectory(_):
+    #         for it in self._pages:
+    #             it.toggle_trajectory_exec.emit(
+    #                 self.toggle_all_trajectory_button.text().startswith("Start")
+    #             )
 
-        self.toggle_all_trajectory_button.clicked.connect(_toggle_all_trajectory)
-        layout.addWidget(self.toggle_all_trajectory_button)
-        team_mgmt_group_box.setLayout(layout)
-        return team_mgmt_group_box
+    #     self.toggle_all_trajectory_button.clicked.connect(_toggle_all_trajectory)
+    #     layout.addWidget(self.toggle_all_trajectory_button)
+    #     team_mgmt_group_box.setLayout(layout)
+    #     return team_mgmt_group_box
 
     def make_tab(self, name, receiver):
         page = Page(receiver)
@@ -118,11 +120,14 @@ class MainWindow(QtWidgets.QWidget):
         self.toggle_all_trajectory_button.setText(
             "%s trajectory" % ("Start" if all_startable else "Stop")
         )
-        self.toggle_all_trajectory_button.setStyleSheet("""QPushButton {
+        self.toggle_all_trajectory_button.setStyleSheet(
+            """QPushButton {
     color : %s;
     background-color: %s;
     font-weight: bold;
-}""" % (("black", "white") if all_startable else ("white", "red")))
+}"""
+            % (("black", "white") if all_startable else ("white", "red"))
+        )
 
 
 class Page(QtWidgets.QWidget):
@@ -373,12 +378,15 @@ class Page(QtWidgets.QWidget):
         return box
 
     def _set_arming_button_style(self):
-        self._arming_button.setStyleSheet("""QPushButton {
+        self._arming_button.setStyleSheet(
+            """QPushButton {
     color : %s;
     background-color: %s;
     font-size: 25px;
     font-weight: bold;
-}""" % (("black", "white") if self._is_armed else ("white", "red")))
+}"""
+            % (("black", "white") if self._is_armed else ("white", "red"))
+        )
 
     def make_user_command_groupbox(self):
         box = StyledGroupBox("Commands")
@@ -435,19 +443,23 @@ class Page(QtWidgets.QWidget):
         ]
         mode_menu = QtWidgets.QComboBox()
         mode_menu.addItems(px4_modes)
-        mode_menu.setStyleSheet("""QComboBox {
+        mode_menu.setStyleSheet(
+            """QComboBox {
     font-size: 25px;
     font-weight: bold;
-}""")
+}"""
+        )
         mode_menu.currentIndexChanged.connect(
             lambda idx: self.set_mode.emit(mode_menu.itemText(idx))
         )
         layout.addWidget(mode_menu, 0, 1)
         mode_toggle = QtWidgets.QCheckBox("Use APM Modes")
-        mode_toggle.setStyleSheet("""QCheckBox {
+        mode_toggle.setStyleSheet(
+            """QCheckBox {
     font-size: 25px;
     font-weight: bold;
-}""")
+}"""
+        )
         layout.addWidget(mode_toggle, 0, 2)
 
         def toggle_modeset(state):
@@ -492,6 +504,8 @@ class Page(QtWidgets.QWidget):
     def make_trajectory_subbox(self):
         box = QtWidgets.QGroupBox("Trajectory Tracking")
         layout = QtWidgets.QGridLayout()
+
+        # creat a button, initially disable
         self._toggle_trajectory_button = QtWidgets.QPushButton("Start Trajectory")
         self._toggle_trajectory_button.setEnabled(False)
 
@@ -606,11 +620,14 @@ class Page(QtWidgets.QWidget):
         self._toggle_trajectory_button.setText(
             "%s trajectory" % ("Start" if progress <= 0 else "Stop")
         )
-        self._toggle_trajectory_button.setStyleSheet("""QPushButton {
+        self._toggle_trajectory_button.setStyleSheet(
+            """QPushButton {
     color : %s;
     background-color: %s;
     font-weight: bold;
-}""" % (("black", "white") if progress <= 0 else ("white", "red")))
+}"""
+            % (("black", "white") if progress <= 0 else ("white", "red"))
+        )
         self.update_traj_progress_to_mw.emit(progress)
 
     # Private Slot Definitions
