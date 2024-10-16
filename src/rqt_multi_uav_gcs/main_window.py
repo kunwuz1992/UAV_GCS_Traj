@@ -1,4 +1,5 @@
-import json
+import ctypes
+import struct
 
 from python_qt_binding import QtCore, QtWidgets
 
@@ -505,17 +506,27 @@ class Page(QtWidgets.QWidget):
         box = QtWidgets.QGroupBox("Trajectory Tracking")
         layout = QtWidgets.QGridLayout()
 
-        # creat a button, initially disable
+        # creat a button for starting the trajectory tracking controller, initially disable
         self._toggle_trajectory_button = QtWidgets.QPushButton("Start Trajectory")
         self._toggle_trajectory_button.setEnabled(False)
 
-        def toggle_trajectory():
-            self.toggle_trajectory_exec.emit(
-                self._toggle_trajectory_button.text().startswith("Start")
-            )
-
-        self._toggle_trajectory_button.clicked.connect(toggle_trajectory)
+        self._toggle_trajectory_button.clicked.connect(self.toggle_trajectory)
         layout.addWidget(self._toggle_trajectory_button, 0, 0)
+
+        # creat a button for starting the stabilization controller, initially enable
+        self._toggle_stabilization_button = QtWidgets.QPushButton("Start stabilization")
+        self._toggle_stabilization_button.setEnabled(True)
+
+        self._toggle_stabilization_button.clicked.connect(self.toggle_stabilization)
+        layout.addWidget(self._toggle_stabilization_button, 0, 1)
+
+        # creat space to display the controller status
+        layout.addWidget(QtWidgets.QLabel("Current Controller"), 1, 0)
+        self._controller_name_line_edit = QtWidgets.QLineEdit()
+        layout.addWidget(self._controller_name_line_edit, 1, 1)
+        self._controller_name_line_edit.setText("Stabilization")
+
+        # creat a button to load the ref trajectory
         load_trajectory_button = QtWidgets.QPushButton("Load Trajectory File")
         fd = QtWidgets.QFileDialog()
 
@@ -524,31 +535,34 @@ class Page(QtWidgets.QWidget):
         def load_trajectory_file(_):
             file_name, _ = fd.getOpenFileName(
                 caption="Load Trajectory File",
-                filter="Trajectory Specification (*.json)",
+                filter="Trajectory Specification (*.dat)",
             )
             try:
-                with open(file_name, "r", encoding="utf-8") as fp:
-                    trajectory = json.load(fp)
-                    position = trajectory["trajectory"][0]["position"]
-                    if len(position) != 3:
-                        return
+                with open(file_name, mode="rb") as f:
+                    contents = f.read()
+                    dobule_size = ctypes.sizeof(ctypes.c_double)
+                    cols = int(
+                        struct.unpack("d", contents[dobule_size : dobule_size * 2])[0]
+                    )
+                    if cols < 10:
+                        self._file_name_line_edit.setText("Wrong Trajectory Size")
 
-                    for value, line_edit in zip(position, self._refs_line_edits):
-                        if not isinstance(value, float):
-                            return
-
-                        line_edit.setText(str(value))
             except (
                 FileNotFoundError,
-                json.JSONDecodeError,
-                KeyError,
+                # json.JSONDecodeError,
+                # KeyError,
                 IndexError,
                 ValueError,
             ):
                 return
-            self._file_name_line_edit.setText(file_name)
+
+            file_name_ls = file_name.split("/")
+            self._file_name_line_edit.setText(file_name_ls[-1])
 
         load_trajectory_button.clicked.connect(load_trajectory_file)
+        layout.addWidget(load_trajectory_button, 0, 2)
+        layout.addWidget(QtWidgets.QLabel("Current Trajectory"), 1, 2)
+        layout.addWidget(self._file_name_line_edit, 1, 3)
 
         read_trajectory_button = QtWidgets.QPushButton("Send Trajectory")
         read_trajectory_button.setEnabled(False)
@@ -558,14 +572,15 @@ class Page(QtWidgets.QWidget):
         read_trajectory_button.clicked.connect(
             lambda _: self.load_trajectory_file.emit(self._file_name_line_edit.text())
         )
-
-        self._trajectory_progress = QtWidgets.QProgressBar()
-        self._trajectory_progress.setEnabled(False)
-        layout.addWidget(load_trajectory_button, 0, 1)
-        layout.addWidget(self._file_name_line_edit, 0, 2)
         layout.addWidget(read_trajectory_button, 0, 3)
-        layout.addWidget(QtWidgets.QLabel("Progress along trajectory"), 1, 0)
-        layout.addWidget(self._trajectory_progress, 1, 1, 1, 3)
+
+        # self._trajectory_progress = QtWidgets.QProgressBar()
+        # self._trajectory_progress.setEnabled(False)
+        # layout.addWidget(load_trajectory_button, 0, 1)
+        # layout.addWidget(self._file_name_line_edit, 0, 2)
+        # layout.addWidget(read_trajectory_button, 0, 3)
+        # layout.addWidget(QtWidgets.QLabel("Progress along trajectory"), 1, 0)
+        # layout.addWidget(self._trajectory_progress, 1, 1, 1, 3)
         box.setLayout(layout)
         return box
 
@@ -573,6 +588,20 @@ class Page(QtWidgets.QWidget):
     # -----------------------------------
     #
     # Connected to signals defined by an outside class
+
+    def toggle_trajectory(self):
+        self._toggle_trajectory_button.setEnabled(False)
+        self._controller_name_line_edit.setText("Trajectory")
+        self._toggle_stabilization_button.setEnabled(True)
+
+        return None
+
+    def toggle_stabilization(self):
+        self._toggle_trajectory_button.setEnabled(True)
+        self._controller_name_line_edit.setText("Stabilization")
+        self._toggle_stabilization_button.setEnabled(False)
+
+        return None
 
     def update_local_position(self, *values):
         self._enu_box.display(*values)
